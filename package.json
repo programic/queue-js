@@ -1,0 +1,47 @@
+{
+  "name": "@programic/queue",
+  "version": "1.0.0",
+  "description": "Simple JavaScript/TypeScript queue",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest --config jest.config.json",
+    "lint": "eslint ./src --ext .js,.jsx,.ts,.tsx",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm test && npm run lint",
+    "preversion": "npm run lint",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/programic/queue-js.git"
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "keywords": [
+    "queue",
+    "javascript",
+    "typescript"
+  ],
+  "author": "Thimon Wentink (https://github.com/thimonwentink)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/programic/queue-js/issues"
+  },
+  "homepage": "https://github.com/programic/queue-js#readme",
+  "devDependencies": {
+    "@programic/eslint-config-typescript": "^2.0.0",
+    "@types/jest": "^27.0.3",
+    "@typescript-eslint/eslint-plugin": "^5.4.0",
+    "@typescript-eslint/parser": "^5.4.0",
+    "eslint": "^8.3.0",
+    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-plugin-import": "^2.25.3",
+    "jest": "^27.3.1",
+    "ts-jest": "^27.0.7",
+    "typescript": "^4.5.2"
+  }
+}
