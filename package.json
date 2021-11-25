@@ -1,7 +1,7 @@
 {
   "name": "@programic/queue",
-  "version": "1.0.0",
-  "description": "Simple JavaScript/TypeScript queue",
+  "version": "1.0.1",
+  "description": "A simple queue for JavaScript/TypeScript",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -31,7 +31,7 @@
   "bugs": {
     "url": "https://github.com/programic/queue-js/issues"
   },
-  "homepage": "https://github.com/programic/queue-js#readme",
+  "homepage": "https://programic.com",
   "devDependencies": {
     "@programic/eslint-config-typescript": "^2.0.0",
     "@types/jest": "^27.0.3",
