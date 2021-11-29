@@ -31,6 +31,6 @@ To create a new queue instance, use the `createQueue` method (like the example a
 Every queue instance has the following methods and properties:
 
 - `enqueuedTasks` (property: array) contains the tasks that are waiting to be fired
-- `getRunningTasks` (method: Task[]) get the tasks that are currently running
+- `runningTasks` (property: Task[]) contains the tasks that are currently running
 - `isRunning` (method: boolean) indicates if the queue is running
 - `push` (method: void) method to push a new task to the queue

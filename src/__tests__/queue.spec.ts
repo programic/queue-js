@@ -31,11 +31,9 @@ describe('the queue', () => {
       queue.push(task);
       queue.push(task);
 
-      const runningTasks = queue.getRunningTasks();
-
       expect(queue.isRunning()).toBe(true);
-      expect(runningTasks).toHaveLength(1);
-      expect(runningTasks[0]).toBe(task);
+      expect(queue.runningTasks).toHaveLength(1);
+      expect(queue.runningTasks[0]).toBe(task);
       expect(task).toHaveBeenCalledTimes(1);
       expect(queue.enqueuedTasks).toHaveLength(1);
 
@@ -47,7 +45,7 @@ describe('the queue', () => {
       await asynchronousWaitForNthSeconds(1.5);
 
       expect(queue.isRunning()).toBe(false);
-      expect(queue.getRunningTasks()).toHaveLength(0);
+      expect(queue.runningTasks).toHaveLength(0);
     };
 
     await testFunction(synchronousTask);
@@ -73,11 +71,9 @@ describe('the queue', () => {
       queue.push(task);
     });
 
-    const runningTasks = queue.getRunningTasks();
-
     expect(queue.isRunning()).toBe(true);
-    expect(runningTasks).toHaveLength(3);
-    expect(runningTasks).toEqual(tasks.slice(0, tasks.length - 1));
+    expect(queue.runningTasks).toHaveLength(3);
+    expect(queue.runningTasks).toEqual(tasks.slice(0, tasks.length - 1));
     expect(synchronousTask).toHaveBeenCalledTimes(2);
     expect(asynchronousTask).toHaveBeenCalledTimes(1);
     expect(queue.enqueuedTasks).toHaveLength(1);
@@ -90,6 +86,6 @@ describe('the queue', () => {
     await asynchronousWaitForNthSeconds(1.5);
 
     expect(queue.isRunning()).toBe(false);
-    expect(queue.getRunningTasks()).toHaveLength(0);
+    expect(queue.runningTasks).toHaveLength(0);
   });
 });

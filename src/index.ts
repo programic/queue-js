@@ -2,9 +2,9 @@ export type Task = () => unknown;
 
 export interface Queue {
   push: (task: Task) => void;
-  getRunningTasks: () => Task[];
   isRunning: () => boolean;
   enqueuedTasks: Task[],
+  runningTasks: Task[];
 }
 
 export function createQueue(numberOfParallelTasks = 1): Queue {
@@ -46,7 +46,7 @@ export function createQueue(numberOfParallelTasks = 1): Queue {
       runTask(task);
     },
     isRunning: () => Boolean(running),
-    getRunningTasks: () => runningTasks,
     enqueuedTasks: taskQueue,
+    runningTasks,
   };
 }
