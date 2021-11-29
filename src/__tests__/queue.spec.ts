@@ -19,7 +19,7 @@ jest.setTimeout(10000);
 
 describe('the queue', () => {
   it('should enqueue a pushed task if the maximum parallel tasks is reached (1 parallel task)', async () => {
-    expect.assertions(10);
+    expect.assertions(18);
 
     const synchronousTask = jest.fn(() => synchronousWaitForNthSeconds(1));
     const asynchronousTask = jest.fn(async () => {
@@ -31,7 +31,11 @@ describe('the queue', () => {
       queue.push(task);
       queue.push(task);
 
+      const runningTasks = queue.getRunningTasks();
+
       expect(queue.isRunning()).toBe(true);
+      expect(runningTasks).toHaveLength(1);
+      expect(runningTasks[0]).toBe(task);
       expect(task).toHaveBeenCalledTimes(1);
       expect(queue.enqueuedTasks).toHaveLength(1);
 
@@ -39,6 +43,11 @@ describe('the queue', () => {
 
       expect(task).toHaveBeenCalledTimes(2);
       expect(queue.enqueuedTasks).toHaveLength(0);
+
+      await asynchronousWaitForNthSeconds(1.5);
+
+      expect(queue.isRunning()).toBe(false);
+      expect(queue.getRunningTasks()).toHaveLength(0);
     };
 
     await testFunction(synchronousTask);
@@ -46,20 +55,29 @@ describe('the queue', () => {
   });
 
   it('should enqueue a pushed task if the maximum parallel tasks is reached (multiple parallel tasks)', async () => {
-    expect.assertions(6);
+    expect.assertions(10);
 
     const synchronousTask = jest.fn(() => synchronousWaitForNthSeconds(1));
     const asynchronousTask = jest.fn(async () => {
       await asynchronousWaitForNthSeconds(1);
     });
     const queue = createQueue(3);
+    const tasks = [
+      synchronousTask,
+      synchronousTask,
+      asynchronousTask,
+      asynchronousTask,
+    ];
 
-    queue.push(synchronousTask);
-    queue.push(synchronousTask);
-    queue.push(asynchronousTask);
-    queue.push(asynchronousTask);
+    tasks.forEach(task => {
+      queue.push(task);
+    });
+
+    const runningTasks = queue.getRunningTasks();
 
     expect(queue.isRunning()).toBe(true);
+    expect(runningTasks).toHaveLength(3);
+    expect(runningTasks).toEqual(tasks.slice(0, tasks.length - 1));
     expect(synchronousTask).toHaveBeenCalledTimes(2);
     expect(asynchronousTask).toHaveBeenCalledTimes(1);
     expect(queue.enqueuedTasks).toHaveLength(1);
@@ -68,5 +86,10 @@ describe('the queue', () => {
 
     expect(synchronousTask).toHaveBeenCalledTimes(2);
     expect(queue.enqueuedTasks).toHaveLength(0);
+
+    await asynchronousWaitForNthSeconds(1.5);
+
+    expect(queue.isRunning()).toBe(false);
+    expect(queue.getRunningTasks()).toHaveLength(0);
   });
 });
