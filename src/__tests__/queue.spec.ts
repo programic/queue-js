@@ -21,7 +21,9 @@ describe('the queue', () => {
   it('should enqueue a pushed task if the maximum parallel tasks is reached (1 parallel task)', async () => {
     expect.assertions(18);
 
-    const synchronousTask = jest.fn(() => synchronousWaitForNthSeconds(1));
+    const synchronousTask = jest.fn(() => {
+      synchronousWaitForNthSeconds(1)
+    });
     const asynchronousTask = jest.fn(async () => {
       await asynchronousWaitForNthSeconds(1);
     });
@@ -55,7 +57,9 @@ describe('the queue', () => {
   it('should enqueue a pushed task if the maximum parallel tasks is reached (multiple parallel tasks)', async () => {
     expect.assertions(10);
 
-    const synchronousTask = jest.fn(() => synchronousWaitForNthSeconds(1));
+    const synchronousTask = jest.fn(() => {
+      synchronousWaitForNthSeconds(1)
+    });
     const asynchronousTask = jest.fn(async () => {
       await asynchronousWaitForNthSeconds(1);
     });
@@ -87,5 +91,45 @@ describe('the queue', () => {
 
     expect(queue.isRunning()).toBe(false);
     expect(queue.runningTasks).toHaveLength(0);
+  });
+
+  it('should proceed to the next task when the current task throws an error', async () => {
+    expect.assertions(12);
+
+    const synchronousTask = jest.fn(() => {
+      synchronousWaitForNthSeconds(1);
+    });
+    const failingTask = jest.fn(() => {
+      synchronousWaitForNthSeconds(1);
+      throw Error('Task failed');
+    });
+    const startTimestamp = Date.now();
+    const queue = createQueue();
+
+    queue.push(failingTask);
+    queue.push(synchronousTask);
+
+    expect(queue.isRunning()).toBe(true);
+    expect(queue.runningTasks).toHaveLength(1);
+    expect(queue.enqueuedTasks).toHaveLength(1);
+
+    await asynchronousWaitForNthSeconds(2.5);
+
+    expect(queue.isRunning()).toBe(false);
+    expect(queue.runningTasks).toHaveLength(0);
+    expect(queue.enqueuedTasks).toHaveLength(0);
+    expect(queue.failedTasks).toHaveLength(1);
+
+    const failedTask = queue.failedTasks[0];
+
+    expect(failedTask.task).toStrictEqual(failingTask);
+    expect(failedTask.failedAt).toBeGreaterThan(startTimestamp);
+
+    if (failedTask.error instanceof Error) {
+      expect(failedTask.error.message).toBe('Task failed');
+    }
+
+    expect(failingTask).toHaveBeenCalledTimes(1);
+    expect(synchronousTask).toHaveBeenCalledTimes(1);
   });
 });

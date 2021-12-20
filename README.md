@@ -1,6 +1,6 @@
 # @programic/queue
 
-[![npm version](https://badge.fury.io/js/%40programic%2Fqueue.svg)](http://badge.fury.io/js/@programic/queue)
+[![npm version](https://badge.fury.io/js/@programic%2Fqueue.svg)](https://badge.fury.io/js/@programic%2Fqueue)
 
 This is a simple JavaScript/TypeScript queue. It contains a push method to add a task (method) to the queue.
 
@@ -32,5 +32,6 @@ Every queue instance has the following methods and properties:
 
 - `enqueuedTasks` (property: array) contains the tasks that are waiting to be fired
 - `runningTasks` (property: Task[]) contains the tasks that are currently running
+- `failedTasks` (property: FailedTask[]) contains the failed tasks with meta info like the error
 - `isRunning` (method: boolean) indicates if the queue is running
 - `push` (method: void) method to push a new task to the queue
