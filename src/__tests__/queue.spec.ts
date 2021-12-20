@@ -22,7 +22,7 @@ describe('the queue', () => {
     expect.assertions(18);
 
     const synchronousTask = jest.fn(() => {
-      synchronousWaitForNthSeconds(1)
+      synchronousWaitForNthSeconds(1);
     });
     const asynchronousTask = jest.fn(async () => {
       await asynchronousWaitForNthSeconds(1);
@@ -58,7 +58,7 @@ describe('the queue', () => {
     expect.assertions(10);
 
     const synchronousTask = jest.fn(() => {
-      synchronousWaitForNthSeconds(1)
+      synchronousWaitForNthSeconds(1);
     });
     const asynchronousTask = jest.fn(async () => {
       await asynchronousWaitForNthSeconds(1);
