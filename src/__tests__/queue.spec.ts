@@ -1,6 +1,6 @@
-import { createQueue } from '..';
+import Queue from '..';
 
-const synchronousWaitForNthSeconds = (seconds: number): void => {
+function synchronousWaitForNthSeconds(seconds: number): void {
   const currentTimestamp = Date.now();
   const start = currentTimestamp;
   let now = currentTimestamp;
@@ -8,14 +8,15 @@ const synchronousWaitForNthSeconds = (seconds: number): void => {
   while ((now - start) < (seconds * 1000)) {
     now = Date.now();
   }
-};
-const asynchronousWaitForNthSeconds = (seconds: number): Promise<void> => {
+}
+
+async function asynchronousWaitForNthSeconds(seconds: number): Promise<void> {
   return new Promise<void>(resolve => {
     setTimeout(resolve, seconds * 1000);
   });
-};
+}
 
-jest.setTimeout(10000);
+jest.setTimeout(10_000);
 
 describe('the queue', () => {
   it('should enqueue a pushed task if the maximum parallel tasks is reached (1 parallel task)', async () => {
@@ -27,8 +28,8 @@ describe('the queue', () => {
     const asynchronousTask = jest.fn(async () => {
       await asynchronousWaitForNthSeconds(1);
     });
-    const testFunction = async (task: () => void | Promise<void>) => {
-      const queue = createQueue();
+    const testFunction = async (task: () => void | Promise<void>): Promise<void> => {
+      const queue = new Queue();
 
       queue.push(task);
       queue.push(task);
@@ -63,7 +64,7 @@ describe('the queue', () => {
     const asynchronousTask = jest.fn(async () => {
       await asynchronousWaitForNthSeconds(1);
     });
-    const queue = createQueue(3);
+    const queue = new Queue(3);
     const tasks = [
       synchronousTask,
       synchronousTask,
@@ -101,10 +102,10 @@ describe('the queue', () => {
     });
     const failingTask = jest.fn(() => {
       synchronousWaitForNthSeconds(1);
-      throw Error('Task failed');
+      throw new Error('Task failed');
     });
     const startTimestamp = Date.now();
-    const queue = createQueue();
+    const queue = new Queue();
 
     queue.push(failingTask);
     queue.push(synchronousTask);

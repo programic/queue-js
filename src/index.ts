@@ -6,64 +6,65 @@ export interface FailedTask {
   failedAt: number;
 }
 
-export interface Queue {
+export interface Queueable {
   isRunning: () => boolean;
   push: (task: Task) => void;
   failedTasks: FailedTask[];
-  enqueuedTasks: Task[],
+  enqueuedTasks: Task[];
   runningTasks: Task[];
 }
 
-export function createQueue(numberOfParallelTasks = 1): Queue {
-  const taskQueue: Task[] = [];
-  const runningTasks: Task[] = [];
-  const failedTasks: FailedTask[] = [];
-  let running = 0;
+export default class Queue implements Queueable {
+  public runningTasks: Task[] = [];
+  public enqueuedTasks: Task[] = [];
+  public failedTasks: FailedTask[] = [];
+  private running = 0;
 
-  const runTask = async (task: Task): Promise<void> => {
-    running += 1;
-    runningTasks.push(task);
+  public constructor(
+    private readonly numberOfParallelTasks: number = 1,
+  ) {
+    //
+  }
+
+  public isRunning(): boolean {
+    return !!this.running;
+  }
+
+  public push(task: Task): void {
+    if (this.running >= this.numberOfParallelTasks) {
+      this.enqueueTask(task);
+      return;
+    }
+
+    this.runTask(task);
+  }
+
+  private enqueueTask(task: Task): void {
+    this.enqueuedTasks.push(task);
+  }
+
+  private async runTask(task: Task): Promise<void> {
+    this.running += 1;
+    this.runningTasks.push(task);
 
     try {
-      await (async () => task())();
+      // eslint-disable-next-line @typescript-eslint/require-await
+      await (async (): Promise<unknown> => task())();
     } catch (error: unknown) {
-      failedTasks.push({
-        failedAt: Date.now(),
-        error,
-        task,
-      });
+      this.failedTasks.push({ task, error, failedAt: Date.now() });
     } finally {
-      const taskIndex = runningTasks.indexOf(task);
-      const nextTask = taskQueue.shift();
+      const taskIndex = this.runningTasks.indexOf(task);
+      const nextTask = this.enqueuedTasks.shift();
 
       if (taskIndex > -1) {
-        runningTasks.splice(taskIndex, 1);
+        this.runningTasks.splice(taskIndex, 1);
       }
 
-      running -= 1;
+      this.running -= 1;
 
       if (nextTask) {
-        runTask(nextTask);
+        this.runTask(nextTask);
       }
     }
-  };
-
-  const enqueueTask = (task: Task): void => {
-    taskQueue.push(task);
-  };
-
-  return {
-    push: (task: Task): void => {
-      if (running >= numberOfParallelTasks) {
-        enqueueTask(task);
-        return;
-      }
-
-      runTask(task);
-    },
-    isRunning: () => Boolean(running),
-    enqueuedTasks: taskQueue,
-    runningTasks,
-    failedTasks,
-  };
+  }
 }

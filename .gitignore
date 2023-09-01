@@ -1,2 +1,8 @@
+# gitignore
 node_modules
+.idea
 /dist
+
+# Only apps should have lockfiles
+package-lock.json
+yarn.lock
